@@ -2,8 +2,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/fireba
 
 import {
   getAuth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
+  GoogleAuthProvider,
+  signInWithPopup,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -19,80 +19,41 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-let confirmationResult;
-let recaptchaVerifier;
+const provider = new GoogleAuthProvider();
 
 const get = (id) => document.getElementById(id);
+const loginSection = document.querySelector("section:has(#otp-phone)");
 
-function showMessage(message) {
-  get("otp-message").textContent = message;
-}
+get("otp-send").style.display = "none";
+get("otp-verify").style.display = "none";
+get("otp-phone").style.display = "none";
+get("otp-code").style.display = "none";
+get("otp-recaptcha").style.display = "none";
+
+const googleButton = document.createElement("button");
+googleButton.textContent = "🔵 Continue with Google";
+googleButton.style.cssText =
+  "background:#4285F4;color:white;padding:14px;border:0;border-radius:10px;font-size:16px;cursor:pointer;";
+
+loginSection.prepend(googleButton);
+
+googleButton.addEventListener("click", async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    get("otp-message").textContent = error.message;
+  }
+});
 
 onAuthStateChanged(auth, (user) => {
-    document.getElementById("app").style.display =
-    user ? "block" : "none";
+  get("app").style.display = user ? "block" : "none";
+  loginSection.style.display = user ? "none" : "block";
 
-  document.querySelector("section:has(#otp-phone)").style.display =
-    user ? "none" : "block";
   get("otp-user").textContent = user
-    ? "Logged in: " + user.phoneNumber
+    ? "Logged in: " + (user.displayName || user.email)
     : "Not logged in";
 
   get("otp-signout").hidden = !user;
-});
-
-get("otp-send").addEventListener("click", async () => {
-  try {
-    const phone = get("otp-phone").value.trim();
-
-    if (!/^\+91[6-9]\d{9}$/.test(phone)) {
-      throw new Error(
-        "Enter mobile number with +91, e.g. +919876543210"
-      );
-    }
-
-    if (!recaptchaVerifier) {
-      recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "otp-recaptcha",
-        { size: "normal" }
-      );
-    }
-
-    confirmationResult = await signInWithPhoneNumber(
-      auth,
-      phone,
-      recaptchaVerifier
-    );
-
-    showMessage("OTP भेज दिया गया है।");
-
-  } catch (error) {
-    showMessage(error.message);
-
-    if (recaptchaVerifier) {
-      recaptchaVerifier.clear();
-      recaptchaVerifier = null;
-    }
-  }
-});
-
-get("otp-verify").addEventListener("click", async () => {
-  try {
-    if (!confirmationResult) {
-      throw new Error("पहले OTP भेजें।");
-    }
-
-    const otp = get("otp-code").value.trim();
-
-    await confirmationResult.confirm(otp);
-
-    showMessage("मोबाइल नंबर सफलतापूर्वक Verify हो गया!");
-
-  } catch (error) {
-    showMessage(error.message);
-  }
 });
 
 get("otp-signout").addEventListener("click", async () => {
