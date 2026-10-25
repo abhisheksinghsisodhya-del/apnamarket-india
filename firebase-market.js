@@ -127,8 +127,37 @@ onSnapshot(collection(db, "products"), snapshot => {
     info.textContent =
       `🏪 ${p.shop || "Shop"} | ₹${p.price}`;
 
-    card.append(title, info);
-    area.appendChild(card);
+    const cartButton = document.createElement("button");
+cartButton.className = "primary";
+cartButton.textContent = "🛒 Add to Cart";
+
+cartButton.onclick = () => {
+  const cart = JSON.parse(
+    localStorage.getItem("firebase-cart") || "[]"
+  );
+
+  const existing = cart.find(x => x.id === item.id);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: item.id,
+      name: p.name,
+      price: p.price,
+      shop: p.shop,
+      sellerId: p.sellerId,
+      qty: 1
+    });
+  }
+
+  localStorage.setItem("firebase-cart", JSON.stringify(cart));
+
+  alert("✅ Product added to cart!");
+};
+
+card.append(title, info, cartButton);
+area.appendChild(card);
   });
 }, error => {
   get("firebase-products").textContent =
