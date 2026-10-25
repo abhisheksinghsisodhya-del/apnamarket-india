@@ -5,13 +5,7 @@ import {
   collection, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-const app = initializeApp({
-  apiKey: "AIzaSyA7xYjYeglLwQfpldf3z8fwT5-9vCU3SqA",
-  authDomain: "apnamarket-india.firebaseapp.com",
-  projectId: "apnamarket-india",
-  appId: "1:804227094458:web:c2c4c4386cd3cb710eaf83"
-}, "market");
-
+const app = getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
