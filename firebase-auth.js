@@ -30,6 +30,11 @@ function showMessage(message) {
 }
 
 onAuthStateChanged(auth, (user) => {
+    document.getElementById("app").style.display =
+    user ? "block" : "none";
+
+  document.querySelector("section:has(#otp-phone)").style.display =
+    user ? "none" : "block";
   get("otp-user").textContent = user
     ? "Logged in: " + user.phoneNumber
     : "Not logged in";
