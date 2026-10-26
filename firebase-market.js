@@ -89,7 +89,14 @@ sellerBox.innerHTML = `
     <option>Fashion</option>
     <option>Electronics</option>
   </select>
+<label for="real-photo">📸 Product Photo</label>
 
+<input
+  type="file"
+  id="real-photo"
+  accept="image/*"
+  style="display:block;width:100%;margin:12px 0;"
+>
   <button class="primary" id="upload-product">
     Upload Product
   </button>
