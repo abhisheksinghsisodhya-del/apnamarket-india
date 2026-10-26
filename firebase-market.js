@@ -67,11 +67,8 @@ sellerBox.innerHTML = `
 
   <hr>
 <label for="real-photo">📸 Product Photo</label>
-<input
-  id="real-photo"
-  type="file"
-  accept="image/*"
->
+
+
     <h3>📦 Upload Product</h3>
 
   <input id="real-product"
