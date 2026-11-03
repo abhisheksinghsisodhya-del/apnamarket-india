@@ -355,7 +355,86 @@ cartBox.innerHTML = `
 `;
 
 el("cart").prepend(cartBox);
+// PLACE ORDER
+el("place-order").addEventListener("click", async () => {
+  const status = el("order-status");
+  const button = el("place-order");
 
+  if (!user) {
+    status.textContent = "पहले Google Login कीजिए।";
+    return;
+  }
+
+  const buyer = el("real-buyer").value.trim();
+  const mobile = el("real-mobile").value.trim();
+  const address = el("real-address").value.trim();
+  const cart = readCart();
+
+  if (!buyer || !/^[6-9]\d{9}$/.test(mobile) || !address) {
+    status.textContent = "नाम, सही 10 अंकों का मोबाइल और पता भरें।";
+    return;
+  }
+
+  const items = [];
+  let total = 0;
+
+  for (const [productId, quantity] of Object.entries(cart)) {
+    const product = catalog.get(productId);
+
+    if (
+      !product ||
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      quantity > (product.stock ?? 0) ||
+      !product.sellerId
+    ) {
+      status.textContent = "कार्ट में किसी उत्पाद का स्टॉक उपलब्ध नहीं है।";
+      return;
+    }
+
+    items.push({
+      productId,
+      name: product.name,
+      price: product.price,
+      quantity,
+      sellerId: product.sellerId
+    });
+
+    total += product.price * quantity;
+  }
+
+  if (items.length === 0) {
+    status.textContent = "आपका Cart खाली है।";
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "ऑर्डर भेजा जा रहा है...";
+
+  try {
+    await addDoc(collection(db, "orders"), {
+      buyerId: user.uid,
+      buyer,
+      mobile,
+      address,
+      items,
+      sellerIds: [...new Set(items.map(item => item.sellerId))],
+      total,
+      status: "Pending",
+      paymentStatus: "Unpaid",
+      createdAt: serverTimestamp()
+    });
+
+    localStorage.removeItem(cartKey);
+    renderCart();
+    status.textContent = "ऑर्डर सफलतापूर्वक दर्ज हुआ। भुगतान अभी बाकी है।";
+  } catch (error) {
+    console.error(error);
+    status.textContent = "ऑर्डर नहीं हुआ। कृपया दोबारा कोशिश करें।";
+  } finally {
+    button.disabled = false;
+  }
+});
 // ADD TO CART
 
 function addToCart(id) {
