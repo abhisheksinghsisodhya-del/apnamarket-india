@@ -384,18 +384,30 @@ el("place-order").addEventListener("click", async () => {
     const quantity = Number(rawQuantity);
     const stock = Number(product?.stock);
 
-    if (
-      !product ||
-      !Number.isInteger(quantity) ||
-      quantity < 1 ||
-      !Number.isFinite(stock) ||
-      stock < 0 ||
-      quantity > stock ||
-      !product.sellerId
-    ) {
-      status.textContent = "उत्पाद का स्टॉक या Cart की Quantity जाँचें।";
-      return;
-    }
+    if (!product) {
+  status.textContent = "उत्पाद Catalog में नहीं मिला।";
+  return;
+}
+
+if (!Number.isInteger(quantity) || quantity < 1) {
+  status.textContent = "Cart की Quantity गलत है।";
+  return;
+}
+
+if (!Number.isFinite(stock) || stock < 0) {
+  status.textContent = "उत्पाद का Stock सही नहीं है।";
+  return;
+}
+
+if (quantity > stock) {
+  status.textContent = `उपलब्ध Stock ${stock} है, Cart Quantity ${quantity} है।`;
+  return;
+}
+
+if (!product.sellerId) {
+  status.textContent = "उत्पाद में Seller ID नहीं मिली।";
+  return;
+}
 
     items.push({
       productId,
