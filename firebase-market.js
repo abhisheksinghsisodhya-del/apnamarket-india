@@ -401,6 +401,15 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "panel";
 
+    if (typeof product.imageUrl === "string" && product.imageUrl.startsWith("https://")) {
+  const photo = document.createElement("img");
+  photo.src = product.imageUrl;
+  photo.alt = name;
+  photo.loading = "lazy";
+  photo.style.cssText = "width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:10px;";
+  card.appendChild(photo);
+    }
+
     const title = document.createElement("h3");
     title.textContent = name;
 
