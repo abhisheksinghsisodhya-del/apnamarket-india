@@ -79,6 +79,11 @@ sellerBox.innerHTML = `
     type="number"
     min="1"
     placeholder="Price ₹">
+    
+    <input id="real-stock"
+  type="number"
+  min="0"
+  placeholder="Available Stock (Quantity)">
 
   <select id="real-category">
     <option>Grocery</option>
@@ -225,13 +230,23 @@ el("upload-product").onclick = async () => {
 
   const name = el("real-product").value.trim();
   const price = Number(el("real-price").value);
+  const stock = Number(el("real-stock").value);
   const category = el("real-category").value;
   const photoFile = el("real-photo").files?.[0];
 
   if (!photoFile) return status("कृपया Product की फोटो चुनें।");
 
-  if (!name || name.length > 120 || !Number.isFinite(price) || price <= 0 || price > 10000000) {
-    return status("सही Product और Price लिखें।");
+  if (
+  !name ||
+  name.length > 120 ||
+  !Number.isFinite(price) ||
+  price <= 0 ||
+  price > 10000000 ||
+  !Number.isInteger(stock) ||
+  stock < 0 ||
+  stock > 100000
+) {
+  return status("सही Product, Price और Stock लिखें।");
   }
 
   const button = el("upload-product");
@@ -248,12 +263,14 @@ el("upload-product").onclick = async () => {
       price,
       shop: registeredShop,
       category,
+      stock,
       imageUrl,
       createdAt: serverTimestamp()
     });
 
     el("real-product").value = "";
     el("real-price").value = "";
+    el("real-stock").value = "";
     el("real-photo").value = "";
 
     status("✅ फोटो सहित प्रोडक्ट अपलोड हो गया!");
@@ -470,7 +487,7 @@ function renderProducts() {
 
     const details = document.createElement("p");
     details.textContent =
-      `🏪 ${shop} | ₹${product.price.toLocaleString("en-IN")}`;
+  `🏪 ${shop} | ₹${product.price.toLocaleString("en-IN")} | 📦 Stock: ${product.stock ?? 0}`;
 
     const addButton = document.createElement("button");
     addButton.className = "primary";
