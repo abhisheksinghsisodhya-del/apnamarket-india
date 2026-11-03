@@ -79,11 +79,13 @@ sellerBox.innerHTML = `
     type="number"
     min="1"
     placeholder="Price ₹">
-    
+  
     <input id="real-stock"
   type="number"
   min="0"
   placeholder="Available Stock (Quantity)">
+    
+    
 
   <select id="real-category">
     <option>Grocery</option>
