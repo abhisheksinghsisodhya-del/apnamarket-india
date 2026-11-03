@@ -383,6 +383,13 @@ el("place-order").addEventListener("click", async () => {
     const product = catalog.get(productId);
     const quantity = Number(rawQuantity);
     const stock = Number(product?.stock);
+    console.log("ORDER DEBUG:", {
+  product,
+  rawQuantity,
+  quantity,
+  stock: product?.stock,
+  sellerId: product?.sellerId
+});
 
     if (!product) {
   status.textContent = "उत्पाद Catalog में नहीं मिला।";
