@@ -164,48 +164,103 @@ el("register-shop").onclick = async () => {
     status("Error: " + error.message);
   }
 };
+async function uploadProductPhoto(file) {
+  if (!file || !file.type.startsWith("image/")) {
+    throw new Error("सही फोटो चुनें।");
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("फोटो 5 MB से छोटी होनी चाहिए।");
+  }
+
+  const token = await user.getIdToken();
+
+  const sigRes = await fetch(
+    "https://apnamarket-photo-api.onrender.com/api/photo-signature",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({})
+    }
+  );
+
+  const sig = await sigRes.json();
+
+  if (!sigRes.ok) {
+    throw new Error(sig.error || "Photo authorization failed");
+  }
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("api_key", sig.apiKey);
+  form.append("timestamp", String(sig.timestamp));
+  form.append("folder", sig.folder);
+  form.append("signature", sig.signature);
+
+  const upRes = await fetch(
+    `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,
+    {
+      method: "POST",
+      body: form
+    }
+  );
+
+  const uploaded = await upRes.json();
+
+  if (!upRes.ok || !uploaded.secure_url) {
+    throw new Error(uploaded.error?.message || "Photo upload failed");
+  }
+
+  return uploaded.secure_url;
+}
 
 // UPLOAD PRODUCT
 
 el("upload-product").onclick = async () => {
-  if (!user) {
-    return status("पहले Google Login करें।");
-  }
-
-  if (!registeredShop) {
-    return status("पहले Shop Register करें।");
-  }
+  if (!user) return status("पहले Google Login करें।");
+  if (!registeredShop) return status("पहले Shop Register करें।");
 
   const name = el("real-product").value.trim();
   const price = Number(el("real-price").value);
   const category = el("real-category").value;
+  const photoFile = el("real-photo").files?.[0];
 
-  if (
-    !name ||
-    name.length > 120 ||
-    !Number.isFinite(price) ||
-    price <= 0 ||
-    price > 10000000
-  ) {
+  if (!photoFile) return status("कृपया Product की फोटो चुनें।");
+
+  if (!name || name.length > 120 || !Number.isFinite(price) || price <= 0 || price > 10000000) {
     return status("सही Product और Price लिखें।");
   }
 
+  const button = el("upload-product");
+  button.disabled = true;
+
   try {
+    status("फोटो अपलोड हो रही है...");
+
+    const imageUrl = await uploadProductPhoto(photoFile);
+
     await addDoc(collection(db, "products"), {
       sellerId: user.uid,
       name,
       price,
       shop: registeredShop,
       category,
+      imageUrl,
       createdAt: serverTimestamp()
     });
 
     el("real-product").value = "";
     el("real-price").value = "";
+    el("real-photo").value = "";
 
-    status("✅ Product uploaded successfully!");
+    status("✅ फोटो सहित प्रोडक्ट अपलोड हो गया!");
   } catch (error) {
     status("Error: " + error.message);
+  } finally {
+    button.disabled = false;
   }
 };
 
