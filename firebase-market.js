@@ -380,7 +380,17 @@ el("place-order").addEventListener("click", async () => {
   let total = 0;
 
   for (const [productId, rawQuantity] of Object.entries(cart)) {
-    const product = catalog.get(productId);
+    let product = catalog.get(productId);
+
+if (!product) {
+  const productSnap = await getDoc(
+    doc(db, "products", productId)
+  );
+
+  if (productSnap.exists()) {
+    product = productSnap.data();
+  }
+}
     const quantity = Number(rawQuantity);
     const stock = Number(product?.stock);
     console.log("ORDER DEBUG:", {
