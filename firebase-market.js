@@ -344,13 +344,14 @@ cartBox.innerHTML = `
     placeholder="Delivery Address">
 
   <p>
-    💳 UPI Only — Secure payment setup pending.
-    अभी कोई भुगतान या ऑर्डर सबमिट नहीं होगा।
-  </p>
+  💳 UPI Only — Payment अभी उपलब्ध नहीं है।
+</p>
 
-  <button class="primary" disabled>
-    Checkout — Coming Soon
-  </button>
+<button class="primary" id="place-order">
+  🛍️ Place Order
+</button>
+
+<p id="order-status"></p>
 `;
 
 el("cart").prepend(cartBox);
