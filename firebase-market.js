@@ -355,6 +355,7 @@ cartBox.innerHTML = `
 `;
 
 el("cart").prepend(cartBox);
+
 // PLACE ORDER
 el("place-order").addEventListener("click", async () => {
   const status = el("order-status");
@@ -378,17 +379,21 @@ el("place-order").addEventListener("click", async () => {
   const items = [];
   let total = 0;
 
-  for (const [productId, quantity] of Object.entries(cart)) {
+  for (const [productId, rawQuantity] of Object.entries(cart)) {
     const product = catalog.get(productId);
+    const quantity = Number(rawQuantity);
+    const stock = Number(product?.stock);
 
     if (
       !product ||
       !Number.isInteger(quantity) ||
       quantity < 1 ||
-      quantity > (product.stock ?? 0) ||
+      !Number.isFinite(stock) ||
+      stock < 0 ||
+      quantity > stock ||
       !product.sellerId
     ) {
-      status.textContent = "कार्ट में किसी उत्पाद का स्टॉक उपलब्ध नहीं है।";
+      status.textContent = "उत्पाद का स्टॉक या Cart की Quantity जाँचें।";
       return;
     }
 
@@ -427,7 +432,7 @@ el("place-order").addEventListener("click", async () => {
 
     localStorage.removeItem(cartKey);
     renderCart();
-    status.textContent = "ऑर्डर सफलतापूर्वक दर्ज हुआ। भुगतान अभी बाकी है।";
+    status.textContent = "ऑर्डर दर्ज हो गया। भुगतान अभी बाकी है।";
   } catch (error) {
     console.error(error);
     status.textContent = "ऑर्डर नहीं हुआ। कृपया दोबारा कोशिश करें।";
@@ -435,6 +440,7 @@ el("place-order").addEventListener("click", async () => {
     button.disabled = false;
   }
 });
+
 // ADD TO CART
 
 function addToCart(id) {
