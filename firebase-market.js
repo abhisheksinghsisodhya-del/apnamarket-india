@@ -2,7 +2,7 @@ import { getApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, addDoc,
-  collection, onSnapshot, serverTimestamp
+collection, onSnapshot, serverTimestamp, updateDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const app = getApp();
