@@ -705,7 +705,15 @@ onSnapshot(
 
       catalog.set(item.id, p);
     });
+    const savedCart = readCart();
 
+for (const id of Object.keys(savedCart)) {
+  if (!catalog.has(id)) {
+    delete savedCart[id];
+  }
+}
+
+localStorage.setItem(cartKey, JSON.stringify(savedCart));
     renderProducts();
     renderCart();
   },
