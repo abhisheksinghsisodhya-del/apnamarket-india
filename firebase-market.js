@@ -390,7 +390,7 @@ if (!product) {
   if (productSnap.exists()) {
     product = productSnap.data();
   }
-}
+} 
     const quantity = Number(rawQuantity);
     const stock = Number(product?.stock);
     console.log("ORDER DEBUG:", {
