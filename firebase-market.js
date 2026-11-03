@@ -402,9 +402,10 @@ if (!product) {
 });
 
     if (!product) {
-  status.textContent = "उत्पाद Catalog में नहीं मिला।";
+  status.textContent = "Product ID नहीं मिली: " + productId;
+  console.log("Missing Product ID:", productId);
   return;
-}
+    }
 
 if (!Number.isInteger(quantity) || quantity < 1) {
   status.textContent = "Cart की Quantity गलत है।";
