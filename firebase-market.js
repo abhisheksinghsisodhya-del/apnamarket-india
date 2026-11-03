@@ -492,6 +492,56 @@ function renderProducts() {
         saveWishlist([...ids, id]);
       }
     };
+    if (user && product.sellerId === user.uid) {
+  const editButton = document.createElement("button");
+  editButton.textContent = "✏️ Edit";
+
+  editButton.onclick = async () => {
+    const newName = prompt("नया Product Name:", name);
+    if (newName === null) return;
+
+    const cleanName = newName.trim();
+    if (!cleanName) {
+      status("सही नाम लिखें।");
+      return;
+    }
+
+    const newPriceText = prompt("नई कीमत ₹ में:", String(product.price));
+    if (newPriceText === null) return;
+
+    const newPrice = Number(newPriceText);
+    if (!Number.isFinite(newPrice) || newPrice <= 0) {
+      status("सही कीमत लिखें।");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "products", id), {
+        name: cleanName,
+        price: newPrice
+      });
+      status("✅ Product update हो गया!");
+    } catch (error) {
+      status("Error: " + error.message);
+    }
+  };
+
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "🗑️ Delete";
+
+  deleteButton.onclick = async () => {
+    if (!confirm("क्या आप यह Product हटाना चाहते हैं?")) return;
+
+    try {
+      await deleteDoc(doc(db, "products", id));
+      status("✅ Product delete हो गया!");
+    } catch (error) {
+      status("Error: " + error.message);
+    }
+  };
+
+  card.append(editButton, deleteButton);
+    }
 
     card.append(title, details, addButton, wishButton);
     area.appendChild(card);
